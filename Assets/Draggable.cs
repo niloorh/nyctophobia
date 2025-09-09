@@ -1,8 +1,10 @@
 using System;
 using UnityEngine;
 
-public class drawer : MonoBehaviour
+public class Draggable : MonoBehaviour
 {
+    public float forceMultiplier = 5f;
+
     private Rigidbody rb;
     private bool isDragging = false;
     private Vector3 offset;
@@ -37,7 +39,7 @@ public class drawer : MonoBehaviour
             //rb.MovePosition(newPos);
             Vector3 force = new Vector3(targetPos.x - transform.position.x, 0, 0);
             //Debug.Log("Force: " + force);
-            rb.AddForce(force.normalized * 5);
+            rb.AddForce(force.normalized * forceMultiplier);
         }
     }
 

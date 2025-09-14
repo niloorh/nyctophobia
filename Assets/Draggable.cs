@@ -4,6 +4,7 @@ using UnityEngine;
 public class Draggable : MonoBehaviour
 {
     public float forceMultiplier = 5f;
+    public Vector3 mouseVector = Vector3.right;
 
     private Rigidbody rb;
     private bool isDragging = false;
@@ -34,10 +35,11 @@ public class Draggable : MonoBehaviour
             Vector3 targetPos = GetMouseWorldPos() + offset;
             //Debug.Log("Target: " + targetPos);
             // Only allow Z movement
-            Vector3 newPos = new Vector3(targetPos.x, transform.position.y, transform.position.z);
-            //Debug.Log("new: " + newPos);
             //rb.MovePosition(newPos);
-            Vector3 force = new Vector3(targetPos.x - transform.position.x, 0, 0);
+            Vector3 force = new Vector3(
+                (targetPos.x - transform.position.x) * mouseVector.x,
+                (targetPos.y - transform.position.y) * mouseVector.y,
+                (targetPos.z - transform.position.z) * mouseVector.z);
             //Debug.Log("Force: " + force);
             rb.AddForce(force.normalized * forceMultiplier);
         }

@@ -30,13 +30,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 460805074584783801}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: -0.7071068, z: 0, w: 0.7071068}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0.5966388, y: 0.026403198, z: 0.5425879}
   m_LocalScale: {x: 0.83332217, y: 0.8333221, z: 0.83332217}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1445873194887271417}
-  m_LocalEulerAnglesHint: {x: 0, y: -90, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!33 &466243076302332398
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -164,8 +164,8 @@ HingeJoint:
   m_ExtendedLimits: 0
   m_UseAcceleration: 0
   m_Limits:
-    min: -90
-    max: 90
+    min: -180
+    max: 0
     bounciness: 0
     bounceMinVelocity: 0
     contactDistance: 0
@@ -531,13 +531,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4338504213547561410}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0.7071068, z: 0, w: 0.7071068}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0.5966388, y: 0.026403198, z: -0.5425879}
   m_LocalScale: {x: 0.8333221, y: 0.8333221, z: 0.8333221}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1445873194887271417}
-  m_LocalEulerAnglesHint: {x: 0, y: 90, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!33 &5003124540326122893
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -649,7 +649,7 @@ HingeJoint:
   m_Anchor: {x: 0, y: 0, z: 0}
   m_Axis: {x: 0, y: 1, z: 0}
   m_AutoConfigureConnectedAnchor: 1
-  m_ConnectedAnchor: {x: -44.58559, y: 1.1796048, z: -47.620247}
+  m_ConnectedAnchor: {x: -32.93619, y: 1.0177857, z: -14.9571705}
   serializedVersion: 2
   m_UseSpring: 0
   m_Spring:
@@ -665,8 +665,8 @@ HingeJoint:
   m_ExtendedLimits: 0
   m_UseAcceleration: 0
   m_Limits:
-    min: -90
-    max: 90
+    min: 0
+    max: 180
     bounciness: 0
     bounceMinVelocity: 0.2
     contactDistance: 0

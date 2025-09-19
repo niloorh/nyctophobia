@@ -8,4 +8,13 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/SampleScene.unity
     guid: 99c9720ab356a0642a771bea13969a05
+  - enabled: 1
+    path: Assets/Scenes/lighting/bright/full_bright.unity
+    guid: cc9c04561aa67434b8e28b8e8ac25582
+  - enabled: 1
+    path: Assets/Scenes/lighting/dim/dim.unity
+    guid: e24278928ee9d764e8adeed5bcb1772b
+  - enabled: 1
+    path: Assets/Scenes/lighting/very dim/very dim.unity
+    guid: cef0800745168fe4583ed520cc4f1634
   m_configObjects: {}

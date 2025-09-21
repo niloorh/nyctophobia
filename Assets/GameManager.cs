@@ -15,17 +15,68 @@ public class GameManager : MonoBehaviour
 
     public GameObject[] lights;
 
-    public GameObject lightSwitcher;
+    //public GameObject lightSwitcher;
+
+    public Texture2D[] brightDir, brightColor;
+    public Texture2D[] dimDir, dimColor;
+    public Texture2D[] darkDir, darkColor;
+
+    private LightmapData[] brightMap, dimMap, darkMap;
 
     // Start is called before the first frame update
     void Start()
     {
-        lightSwitcher.GetComponent<LevelLightmapData>().LoadLightingScenario(0);
+        //lightSwitcher.GetComponent<LevelLightmapData>().LoadLightingScenario(0);
         //if (!SceneManager.GetSceneByName(brightLightingScene).isLoaded &&
         //    !SceneManager.GetSceneByName(dimLightingScene).isLoaded)
         //{
         //    StartCoroutine(SwitchTo(brightLightingScene));
         //}
+
+        /////////////////////////////////////////////////////
+        List<LightmapData> lightmap = new List<LightmapData>();
+
+        for (int i = 0; i < brightDir.Length; i++)
+        {
+            LightmapData lmdata = new LightmapData();
+
+            lmdata.lightmapDir = brightDir[i];
+            lmdata.lightmapColor = brightColor[i];
+
+            lightmap.Add(lmdata);
+        }
+
+        brightMap = lightmap.ToArray();
+        /////////////////////////////////////////////////////
+        lightmap = new List<LightmapData>();
+
+        for (int i = 0; i < dimDir.Length; i++)
+        {
+            LightmapData lmdata = new LightmapData();
+
+            lmdata.lightmapDir = dimDir[i];
+            lmdata.lightmapColor = dimColor[i];
+
+            lightmap.Add(lmdata);
+        }
+
+        dimMap = lightmap.ToArray();
+        /////////////////////////////////////////////////////
+        lightmap = new List<LightmapData>();
+
+        for (int i = 0; i < darkDir.Length; i++)
+        {
+            LightmapData lmdata = new LightmapData();
+
+            lmdata.lightmapDir = darkDir[i];
+            lmdata.lightmapColor = darkColor[i];
+
+            lightmap.Add(lmdata);
+        }
+
+        darkMap = lightmap.ToArray();
+        /////////////////////////////////////////////////////
+        LightmapSettings.lightmaps = brightMap;
     }
 
     // Update is called once per frame
@@ -104,7 +155,8 @@ public class GameManager : MonoBehaviour
                 {
                     current_room = 2;
                     //StartCoroutine(SwitchTo(dimLightingScene));
-                    lightSwitcher.GetComponent<LevelLightmapData>().LoadLightingScenario(1);
+                    //lightSwitcher.GetComponent<LevelLightmapData>().LoadLightingScenario(1);
+                    LightmapSettings.lightmaps = dimMap;
                     foreach (GameObject light in lights)
                     {
                         light.GetComponent<Light>().intensity = 0.5f;
@@ -114,7 +166,8 @@ public class GameManager : MonoBehaviour
             case 2:
                 {
                     current_room = 3;
-                    lightSwitcher.GetComponent<LevelLightmapData>().LoadLightingScenario(2);
+                    //lightSwitcher.GetComponent<LevelLightmapData>().LoadLightingScenario(2);
+                    LightmapSettings.lightmaps = darkMap;
                     foreach (GameObject light in lights)
                     {
                         light.GetComponent<Light>().intensity = 0.25f;
@@ -123,6 +176,7 @@ public class GameManager : MonoBehaviour
                 }
             case 3:
                 {
+                    LightmapSettings.lightmaps = brightMap;
                     Debug.Log("Finished!");
                     current_room = 0;
                     foreach (GameObject light in lights)

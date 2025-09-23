@@ -1,0 +1,35 @@
+// LightmapBlend.compute
+// Put this in: Assets/Shaders/LightmapBlend.compute
+// Shader Model 4.5+ required (DX11+ / Metal / Vulkan)
+
+#pragma kernel CSMain
+
+// Source maps (can be compressed), sampled read-only
+Texture2D<float4> _TexA;
+Texture2D<float4> _TexB;
+SamplerState sampler_linear_clamp;
+
+// Output (writable, uncompressed)
+RWTexture2D<float4> _Out;
+
+// Parameters
+float _Blend; // 0..1
+float2 _InvTexSize; // 1/width, 1/height
+
+[numthreads(8, 8, 1)]
+void CSMain(uint3 id : SV_DispatchThreadID)
+{
+    uint2 uv = id.xy;
+
+    // Convert pixel coords to normalized UVs (center-of-pixel sampling)
+    float2 uvn = (float2(uv) + 0.5) * _InvTexSize;
+
+    float4 a = _TexA.SampleLevel(sampler_linear_clamp, uvn, 0);
+    float4 b = _TexB.SampleLevel(sampler_linear_clamp, uvn, 0);
+
+    // Linear-space blend assumed. Ensure project uses Linear color space, or
+    // send linearized inputs if using Gamma.
+    float4 outc = lerp(a, b, saturate(_Blend));
+
+    _Out[uv] = outc;
+}

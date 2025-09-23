@@ -14,6 +14,12 @@ public class GameManager : MonoBehaviour
     public GameObject door_2;
 
     public GameObject[] lights;
+    public float brightIntensity = 0.7f;
+    public float dimIntensity = 0.2f;
+    public float darkIntensity = 0.02f;
+    public float firstDuration = 3f;
+    public float secondDuration = 3f;
+    public float thirdDuration = 3f;
 
     //public GameObject lightSwitcher;
 
@@ -23,9 +29,40 @@ public class GameManager : MonoBehaviour
 
     private LightmapData[] brightMap, dimMap, darkMap;
 
+    //public LightmapCrossfadeGPU lightmapCrossfadeGPU;
+
+    void setIntensity(float intensity)
+    {
+        foreach (var light in lights)
+        {
+            light.GetComponent<Light>().intensity = intensity;
+        }
+    }
+
+    IEnumerator LerpIntensity(float from, float to, float duration)
+    {
+        float elapsed = 0f;
+
+        while (elapsed < duration)
+        {
+            // Calculate interpolation factor [0,1]
+            float t = elapsed / duration;
+
+            // Lerp between from and to
+            setIntensity(Mathf.Lerp(from, to, t));
+
+            elapsed += Time.deltaTime;
+            yield return null; // wait for next frame
+        }
+
+        // Ensure it finishes exactly at target
+        setIntensity(to);
+    }
+
     // Start is called before the first frame update
     void Start()
     {
+        setIntensity(brightIntensity);
         //lightSwitcher.GetComponent<LevelLightmapData>().LoadLightingScenario(0);
         //if (!SceneManager.GetSceneByName(brightLightingScene).isLoaded &&
         //    !SceneManager.GetSceneByName(dimLightingScene).isLoaded)
@@ -33,50 +70,51 @@ public class GameManager : MonoBehaviour
         //    StartCoroutine(SwitchTo(brightLightingScene));
         //}
 
-        /////////////////////////////////////////////////////
-        List<LightmapData> lightmap = new List<LightmapData>();
+        ///////////////////////////////////////////////////////
+        //List<LightmapData> lightmap = new List<LightmapData>();
 
-        for (int i = 0; i < brightDir.Length; i++)
-        {
-            LightmapData lmdata = new LightmapData();
+        //for (int i = 0; i < brightDir.Length; i++)
+        //{
+        //    LightmapData lmdata = new LightmapData();
 
-            lmdata.lightmapDir = brightDir[i];
-            lmdata.lightmapColor = brightColor[i];
+        //    lmdata.lightmapDir = brightDir[i];
+        //    //Debug.Log(brightDir[i]);
+        //    lmdata.lightmapColor = brightColor[i];
 
-            lightmap.Add(lmdata);
-        }
+        //    lightmap.Add(lmdata);
+        //}
 
-        brightMap = lightmap.ToArray();
-        /////////////////////////////////////////////////////
-        lightmap = new List<LightmapData>();
+        //brightMap = lightmap.ToArray();
+        ///////////////////////////////////////////////////////
+        //lightmap = new List<LightmapData>();
 
-        for (int i = 0; i < dimDir.Length; i++)
-        {
-            LightmapData lmdata = new LightmapData();
+        //for (int i = 0; i < dimDir.Length; i++)
+        //{
+        //    LightmapData lmdata = new LightmapData();
 
-            lmdata.lightmapDir = dimDir[i];
-            lmdata.lightmapColor = dimColor[i];
+        //    lmdata.lightmapDir = dimDir[i];
+        //    lmdata.lightmapColor = dimColor[i];
 
-            lightmap.Add(lmdata);
-        }
+        //    lightmap.Add(lmdata);
+        //}
 
-        dimMap = lightmap.ToArray();
-        /////////////////////////////////////////////////////
-        lightmap = new List<LightmapData>();
+        //dimMap = lightmap.ToArray();
+        ///////////////////////////////////////////////////////
+        //lightmap = new List<LightmapData>();
 
-        for (int i = 0; i < darkDir.Length; i++)
-        {
-            LightmapData lmdata = new LightmapData();
+        //for (int i = 0; i < darkDir.Length; i++)
+        //{
+        //    LightmapData lmdata = new LightmapData();
 
-            lmdata.lightmapDir = darkDir[i];
-            lmdata.lightmapColor = darkColor[i];
+        //    lmdata.lightmapDir = darkDir[i];
+        //    lmdata.lightmapColor = darkColor[i];
 
-            lightmap.Add(lmdata);
-        }
+        //    lightmap.Add(lmdata);
+        //}
 
-        darkMap = lightmap.ToArray();
-        /////////////////////////////////////////////////////
-        LightmapSettings.lightmaps = brightMap;
+        //darkMap = lightmap.ToArray();
+        ///////////////////////////////////////////////////////
+        //LightmapSettings.lightmaps = brightMap;
     }
 
     // Update is called once per frame
@@ -113,6 +151,11 @@ public class GameManager : MonoBehaviour
     //    Debug.Log("Done!");
     //    yield break;
     //}
+    public void startGame()
+    {
+        StartCoroutine(LerpIntensity(brightIntensity, dimIntensity, firstDuration));
+    }
+
     public void objective_is_done(int obj_code)
     {
         switch (current_room)
@@ -156,33 +199,45 @@ public class GameManager : MonoBehaviour
                     current_room = 2;
                     //StartCoroutine(SwitchTo(dimLightingScene));
                     //lightSwitcher.GetComponent<LevelLightmapData>().LoadLightingScenario(1);
-                    LightmapSettings.lightmaps = dimMap;
-                    foreach (GameObject light in lights)
-                    {
-                        light.GetComponent<Light>().intensity = 0.5f;
-                    }
+                    //LightmapSettings.lightmaps = dimMap;
+                    //lightmapCrossfadeGPU.LightmapsA = LightmapSettings.lightmaps;
+                    //lightmapCrossfadeGPU.LightmapsB = dimMap;
+                    //lightmapCrossfadeGPU.StartCrossfade();
+                    StartCoroutine(LerpIntensity(dimIntensity, darkIntensity, firstDuration));
+                    //foreach (GameObject light in lights)
+                    //{
+                    //    light.GetComponent<Light>().intensity = 0.5f;
+                    //}
                     break;
                 }
             case 2:
                 {
                     current_room = 3;
                     //lightSwitcher.GetComponent<LevelLightmapData>().LoadLightingScenario(2);
-                    LightmapSettings.lightmaps = darkMap;
-                    foreach (GameObject light in lights)
-                    {
-                        light.GetComponent<Light>().intensity = 0.25f;
-                    }
+                    //LightmapSettings.lightmaps = darkMap;
+                    //lightmapCrossfadeGPU.LightmapsA = LightmapSettings.lightmaps;
+                    //lightmapCrossfadeGPU.LightmapsB = darkMap;
+                    //lightmapCrossfadeGPU.StartCrossfade();
+                    //StartCoroutine(LerpIntensity(dimIntensity, darkIntensity, secondDuration));
+                    //foreach (GameObject light in lights)
+                    //{
+                    //    light.GetComponent<Light>().intensity = 0.25f;
+                    //}
                     break;
                 }
             case 3:
                 {
-                    LightmapSettings.lightmaps = brightMap;
+                    //LightmapSettings.lightmaps = brightMap;
+                    //lightmapCrossfadeGPU.LightmapsA = LightmapSettings.lightmaps;
+                    //lightmapCrossfadeGPU.LightmapsB = brightMap;
+                    //lightmapCrossfadeGPU.StartCrossfade();
+                    StartCoroutine(LerpIntensity(darkIntensity, brightIntensity, thirdDuration));
                     Debug.Log("Finished!");
                     current_room = 0;
-                    foreach (GameObject light in lights)
-                    {
-                        light.GetComponent<Light>().intensity = 0f;
-                    }
+                    //foreach (GameObject light in lights)
+                    //{
+                    //    light.GetComponent<Light>().intensity = 0f;
+                    //}
                     break;
                 }
         }

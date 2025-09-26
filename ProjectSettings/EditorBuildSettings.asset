@@ -20,4 +20,6 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/content/test.unity
     guid: 4b4aa7ded421f324a8810baf4b496e4d
-  m_configObjects: {}
+  m_configObjects:
+    com.unity.xr.openxr.settings4: {fileID: 11400000, guid: 0df4b4e419e3c124eb0f986042086514,
+      type: 2}

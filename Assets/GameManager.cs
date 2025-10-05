@@ -1,9 +1,11 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 using UnityEngine.XR.Interaction.Toolkit;
 
 public enum PickupType
@@ -47,6 +49,14 @@ public class GameManager : MonoBehaviour
 
     private float batteryDuration = 0f;
     private bool isFlashlightOn = false;
+
+    public Image blackBackground;
+    public float fadeDuration = 0.5f;
+
+    public String[] IntroTexts;
+    public TMP_Text introText;
+    private int currentIntroIndex = 0;
+    private bool isIntroDone = false;
 
     void setIntensity(float intensity)
     {
@@ -183,6 +193,7 @@ public class GameManager : MonoBehaviour
     public void startGame()
     {
         StartCoroutine(LerpIntensity(brightIntensity, dimIntensity, firstDuration));
+        //fade();
     }
 
     public void objective_is_done(int obj_code)
@@ -304,6 +315,54 @@ public class GameManager : MonoBehaviour
                 }
             }
         }
+    }
+
+    public void proceedIntro(InputAction.CallbackContext context)
+    {
+        if (context.phase == InputActionPhase.Started && !isIntroDone)
+        {
+            if(currentIntroIndex >= IntroTexts.Length)
+            {
+                introText.enabled = false;
+                StartCoroutine(LerpBackground(1, 0, fadeDuration));
+                isIntroDone = true;
+                return;
+            }
+            currentIntroIndex += 1;
+            string text = "";
+            for (int i = 0; i < currentIntroIndex; i++)
+            {
+                text += IntroTexts[i] + " ";
+            }
+            introText.text = text;
+        }
+    }
+
+    public void fade()
+    {
+        StartCoroutine(LerpBackground(1, 0, fadeDuration));
+
+        blackBackground.color = new Color(0, 0, 0, 0);
+    }
+
+    IEnumerator LerpBackground(float from, float to, float duration)
+    {
+        float elapsed = 0f;
+
+        while (elapsed < duration)
+        {
+            // Calculate interpolation factor [0,1]
+            float t = elapsed / duration;
+
+            // Lerp between from and to
+            blackBackground.color = new Color(0, 0, 0, Mathf.Lerp(from, to, t));
+
+            elapsed += Time.deltaTime;
+            yield return null; // wait for next frame
+        }
+
+        // Ensure it finishes exactly at target
+        blackBackground.color = new Color(0, 0, 0, 0);
     }
 }
 

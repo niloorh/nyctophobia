@@ -7,12 +7,12 @@
             "actions": [
                 {
                     "name": "Move",
-                    "type": "Button",
+                    "type": "Value",
                     "id": "89883c7d-4886-4339-b2b9-8dfdb369b342",
-                    "expectedControlType": "",
+                    "expectedControlType": "Vector2",
                     "processors": "",
                     "interactions": "",
-                    "initialStateCheck": false
+                    "initialStateCheck": true
                 },
                 {
                     "name": "Look",
@@ -36,6 +36,15 @@
                     "name": "Toggle Flashlight",
                     "type": "Button",
                     "id": "0e3e974e-58ae-4dcb-bb81-4bdd05ab0eba",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Proceed Intro",
+                    "type": "Button",
+                    "id": "e52f2c9d-5577-404b-99ad-377d33f41c5a",
                     "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
@@ -271,6 +280,17 @@
                     "processors": "",
                     "groups": ";Keyboard&Mouse",
                     "action": "Toggle Flashlight",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "7718043f-c638-498f-9abb-1a742e35b585",
+                    "path": "<Keyboard>/enter",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Keyboard&Mouse",
+                    "action": "Proceed Intro",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

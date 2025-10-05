@@ -1,7 +1,18 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
+using UnityEngine.XR.Interaction.Toolkit;
+
+public enum PickupType
+{
+    Battery,
+    Key,
+    Falshlight,
+    Note
+}
 
 public class GameManager : MonoBehaviour
 {
@@ -27,9 +38,15 @@ public class GameManager : MonoBehaviour
     public Texture2D[] dimDir, dimColor;
     public Texture2D[] darkDir, darkColor;
 
+    //public InputAction toggleFlashlight;
+    public GameObject flashlight;
+
     private LightmapData[] brightMap, dimMap, darkMap;
 
     //public LightmapCrossfadeGPU lightmapCrossfadeGPU;
+
+    private float batteryDuration = 0f;
+    private bool isFlashlightOn = false;
 
     void setIntensity(float intensity)
     {
@@ -63,6 +80,8 @@ public class GameManager : MonoBehaviour
     void Start()
     {
         setIntensity(brightIntensity);
+        //toggleFlashlight.performed += useBattery;
+        flashlight.GetComponent<Light>().enabled = false;
         //lightSwitcher.GetComponent<LevelLightmapData>().LoadLightingScenario(0);
         //if (!SceneManager.GetSceneByName(brightLightingScene).isLoaded &&
         //    !SceneManager.GetSceneByName(dimLightingScene).isLoaded)
@@ -120,7 +139,17 @@ public class GameManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+        if (isFlashlightOn)
+        {
+            batteryDuration -= Time.deltaTime;
+            Debug.Log("Flashlight on! " + batteryDuration);
+            if (batteryDuration <= 0f)
+            {
+                isFlashlightOn = false;
+                flashlight.GetComponent<Light>().enabled = false;
+                batteryDuration = 0f;
+            }
+        }
     }
     //private IEnumerator SwitchTo(string targetLightingScene)
     //{
@@ -242,4 +271,39 @@ public class GameManager : MonoBehaviour
                 }
         }
     }
+
+    public void pickupObject(PickupType type)
+    {
+        switch (type)
+        {
+            case PickupType.Battery:
+                {
+                    batteryDuration += 10f;
+                    Debug.Log("Current charge: " + batteryDuration);
+                    break;
+                }
+        }
+    }
+
+    public void useBattery(InputAction.CallbackContext context)
+    {
+        if (context.phase == InputActionPhase.Started)
+        {
+            Debug.Log("Battery Action!");
+            if (isFlashlightOn)
+            {
+                isFlashlightOn = false;
+                flashlight.GetComponent<Light>().enabled = false;
+            }
+            else
+            {
+                if (batteryDuration > 0)
+                {
+                    isFlashlightOn = true;
+                    flashlight.GetComponent<Light>().enabled = true;
+                }
+            }
+        }
+    }
 }
+

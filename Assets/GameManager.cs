@@ -7,6 +7,7 @@ using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using UnityEngine.XR.Interaction.Toolkit;
+using DG.Tweening;                    // DOTween
 
 public enum PickupType
 {
@@ -57,6 +58,18 @@ public class GameManager : MonoBehaviour
     public TMP_Text introText;
     private int currentIntroIndex = 0;
     private bool isIntroDone = false;
+
+    // DOTween timings (seconds)
+    public float introFadeIn = 1.0f;
+    public float introHold = 1.8f;
+    public float introFadeOut = 0.8f;
+    public float introGap = 0.2f;
+    public float bgFadeOutAtEnd = 1.0f;
+
+    // Internal DOTween state
+    private Sequence _introSeq;
+    private bool _introAnimating = false;
+
 
     void setIntensity(float intensity)
     {
@@ -144,6 +157,21 @@ public class GameManager : MonoBehaviour
         //darkMap = lightmap.ToArray();
         ///////////////////////////////////////////////////////
         //LightmapSettings.lightmaps = brightMap;
+
+        if (introText != null)
+        {
+            var tc = introText.color;
+            tc.a = 0f;
+            introText.color = tc;
+        }
+
+        // Ensure background starts fully opaque black
+        if (blackBackground != null)
+        {
+            var bc = blackBackground.color;
+            bc.a = 1f;
+            blackBackground.color = bc;
+        }
     }
 
     // Update is called once per frame
@@ -317,52 +345,115 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    //public void proceedIntro(InputAction.CallbackContext context)
+    //{
+    //    if (context.phase == InputActionPhase.Started && !isIntroDone)
+    //    {
+    //        if(currentIntroIndex >= IntroTexts.Length)
+    //        {
+    //            introText.enabled = false;
+    //            StartCoroutine(LerpBackground(1, 0, fadeDuration));
+    //            isIntroDone = true;
+    //            return;
+    //        }
+    //        currentIntroIndex += 1;
+    //        string text = "";
+    //        for (int i = 0; i < currentIntroIndex; i++)
+    //        {
+    //            text += IntroTexts[i] + " ";
+    //        }
+    //        introText.text = text;
+    //    }
+    //}
+
     public void proceedIntro(InputAction.CallbackContext context)
     {
-        if (context.phase == InputActionPhase.Started && !isIntroDone)
+        if (context.phase != InputActionPhase.Started || isIntroDone) return;
+        if (_introAnimating) return;
+
+        // If finished all lines, fade out background and end
+        if (currentIntroIndex >= IntroTexts.Length)
         {
-            if(currentIntroIndex >= IntroTexts.Length)
+            isIntroDone = true;
+            _introSeq?.Kill();
+            if (introText != null) introText.DOFade(0f, 0.15f).SetUpdate(true);
+
+            if (blackBackground != null)
             {
-                introText.enabled = false;
-                StartCoroutine(LerpBackground(1, 0, fadeDuration));
-                isIntroDone = true;
-                return;
+                blackBackground.DOFade(0f, bgFadeOutAtEnd)
+                               .SetUpdate(true)
+                               .OnComplete(() => { if (introText != null) introText.enabled = false; });
             }
-            currentIntroIndex += 1;
-            string text = "";
-            for (int i = 0; i < currentIntroIndex; i++)
-            {
-                text += IntroTexts[i] + " ";
-            }
-            introText.text = text;
+            else if (introText != null) introText.enabled = false;
+
+            return;
+        }
+
+        // If text is currently invisible -> fade IN the current line
+        if (introText.color.a <= 0.01f)
+        {
+            string line = IntroTexts[currentIntroIndex];
+            introText.text = line;
+
+            var c = introText.color;
+            c.a = 0f;
+            introText.color = c;
+
+            _introAnimating = true;
+            _introSeq?.Kill();
+            _introSeq = DOTween.Sequence()
+                .Append(introText.DOFade(1f, introFadeIn).SetUpdate(true))
+                .OnComplete(() => _introAnimating = false);
+        }
+        else
+        {
+            // If text is visible -> fade it OUT and go to next line
+            _introAnimating = true;
+            _introSeq?.Kill();
+            _introSeq = DOTween.Sequence()
+                .Append(introText.DOFade(0f, introFadeOut).SetUpdate(true))
+                .AppendInterval(introGap)
+                .OnComplete(() =>
+                {
+                    _introAnimating = false;
+                    currentIntroIndex++;
+                });
         }
     }
 
-    public void fade()
-    {
-        StartCoroutine(LerpBackground(1, 0, fadeDuration));
 
-        blackBackground.color = new Color(0, 0, 0, 0);
+    //public void fade()
+    //{
+    //    StartCoroutine(LerpBackground(1, 0, fadeDuration));
+
+    //    blackBackground.color = new Color(0, 0, 0, 0);
+    //}
+
+    //IEnumerator LerpBackground(float from, float to, float duration)
+    //{
+    //    float elapsed = 0f;
+
+    //    while (elapsed < duration)
+    //    {
+    //        // Calculate interpolation factor [0,1]
+    //        float t = elapsed / duration;
+
+    //        // Lerp between from and to
+    //        blackBackground.color = new Color(0, 0, 0, Mathf.Lerp(from, to, t));
+
+    //        elapsed += Time.deltaTime;
+    //        yield return null; // wait for next frame
+    //    }
+
+    //    // Ensure it finishes exactly at target
+    //    blackBackground.color = new Color(0, 0, 0, 0);
+    //}
+
+    public void FadeBackground(float toAlpha, float duration)
+    {
+        if (blackBackground == null) return;
+        blackBackground.DOFade(toAlpha, duration).SetUpdate(true);
     }
 
-    IEnumerator LerpBackground(float from, float to, float duration)
-    {
-        float elapsed = 0f;
-
-        while (elapsed < duration)
-        {
-            // Calculate interpolation factor [0,1]
-            float t = elapsed / duration;
-
-            // Lerp between from and to
-            blackBackground.color = new Color(0, 0, 0, Mathf.Lerp(from, to, t));
-
-            elapsed += Time.deltaTime;
-            yield return null; // wait for next frame
-        }
-
-        // Ensure it finishes exactly at target
-        blackBackground.color = new Color(0, 0, 0, 0);
-    }
 }
 

@@ -1,10 +1,11 @@
+using DG.Tweening;
+using DG.Tweening.Core.Easing;
 using System;
 using System.Collections;
 using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
-using DG.Tweening;
 
 public enum PickupType
 {
@@ -67,6 +68,23 @@ public class GameManager : MonoBehaviour
 
     // coroutines
     private Coroutine room2Coroutine = null;
+
+    public InputActionReference VrIntroAction;
+    public InputActionReference VrFlashlightAction;
+
+    private void Awake()
+    {
+        if (VrIntroAction != null)
+        {
+            VrIntroAction.action.Enable();
+            VrIntroAction.action.performed += proceedIntro;
+        }
+        if (VrFlashlightAction != null)
+        {
+            VrFlashlightAction.action.Enable();
+            VrFlashlightAction.action.performed += useBattery;
+        }
+    }
 
     void setIntensity(float intensity)
     {
@@ -152,7 +170,6 @@ public class GameManager : MonoBehaviour
                     {
                         door_1.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.None;
                         Debug.Log("Room 1 cleared");
-                        next_room();
                     }
                     break;
                 }
@@ -162,7 +179,6 @@ public class GameManager : MonoBehaviour
                     {
                         door_2.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.None;
                         Debug.Log("Room 2 cleared");
-                        next_room();
                     }
                     break;
                 }
@@ -171,31 +187,7 @@ public class GameManager : MonoBehaviour
                     if (obj_code == 3)
                     {
                         Debug.Log("Done!");
-                        next_room();
                     }
-                    break;
-                }
-        }
-    }
-
-    void next_room()
-    {
-        switch (current_room)
-        {
-            case 1:
-                {
-                    current_room = 2;
-                    break;
-                }
-            case 2:
-                {
-                    current_room = 3;
-                    break;
-                }
-            case 3:
-                {
-                    Debug.Log("Finished!");
-                    current_room = 0;
                     break;
                 }
         }
@@ -211,6 +203,7 @@ public class GameManager : MonoBehaviour
                     door_1.transform.rotation = new Quaternion();
                     door_1.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezeAll;
                     room2Coroutine = StartCoroutine(LerpIntensity(brightIntensity, dimIntensity, room2DimDuration));
+                    current_room = 2;
                     break;
                 }
             case 3:
@@ -222,6 +215,7 @@ public class GameManager : MonoBehaviour
                         StopCoroutine(room2Coroutine);
                     }
                     StartCoroutine(LerpIntensity(currentIntensity, darkIntensity, room3DimDuration));
+                    current_room = 3;
                     break;
                 }
         }
@@ -283,7 +277,7 @@ public class GameManager : MonoBehaviour
 
     public void useBattery(InputAction.CallbackContext context)
     {
-        if (context.phase == InputActionPhase.Started)
+        if (context.phase == InputActionPhase.Started || context.phase == InputActionPhase.Performed)
         {
             Debug.Log("Battery Action!");
             if (hasFlashlight && current_room == 3)
@@ -309,7 +303,13 @@ public class GameManager : MonoBehaviour
 
     public void proceedIntro(InputAction.CallbackContext context)
     {
-        if (context.phase != InputActionPhase.Started || isIntroDone) return;
+        if (
+            (
+            context.phase != InputActionPhase.Started &&
+            context.phase != InputActionPhase.Performed
+            )
+            || isIntroDone) return;
+
         if (_introAnimating) return;
 
         // If finished all lines, fade out background and end

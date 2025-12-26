@@ -44,6 +44,9 @@ public class GameManager : MonoBehaviour
 
     public Image blackBackground;
     public float fadeDuration = 0.5f;
+    public TMP_Text letter;
+    public Image letterBack;
+    public float letterFade = 2f;
 
     public String[] IntroTexts;
     public TMP_Text introText;
@@ -58,8 +61,8 @@ public class GameManager : MonoBehaviour
     public float bgFadeOutAtEnd = 1.0f;
 
     // Internal DOTween state
-    private Sequence _introSeq;
-    private bool _introAnimating = false;
+    private Sequence _Seq;
+    private bool _Animating = false;
 
     // Inventory flags
     private bool hasKeyRoom1 = false;
@@ -71,6 +74,11 @@ public class GameManager : MonoBehaviour
 
     public InputActionReference VrIntroAction;
     public InputActionReference VrFlashlightAction;
+
+    public GameObject hintBack;
+    public TMP_Text hint;
+
+    public GameObject player;
 
     private void Awake()
     {
@@ -122,6 +130,7 @@ public class GameManager : MonoBehaviour
         setIntensity(brightIntensity);
         flashlight.GetComponent<Light>().enabled = false;
         flashlightBody.SetActive(false);
+        stopPlayer();
 
         if (introText != null)
         {
@@ -272,6 +281,12 @@ public class GameManager : MonoBehaviour
                     }
                     break;
                 }
+            case PickupType.Note:
+                {
+                    stopPlayer();
+                    OpenChest();
+                    break;
+                }
         }
     }
 
@@ -310,20 +325,24 @@ public class GameManager : MonoBehaviour
             )
             || isIntroDone) return;
 
-        if (_introAnimating) return;
+        if (_Animating) return;
 
         // If finished all lines, fade out background and end
         if (currentIntroIndex >= IntroTexts.Length)
         {
             isIntroDone = true;
-            _introSeq?.Kill();
+            _Seq?.Kill();
             if (introText != null) introText.DOFade(0f, 0.15f).SetUpdate(true);
 
             if (blackBackground != null)
             {
                 blackBackground.DOFade(0f, bgFadeOutAtEnd)
                                .SetUpdate(true)
-                               .OnComplete(() => { if (introText != null) introText.enabled = false; });
+                               .OnComplete(() => {
+                                   if (introText != null) 
+                                       introText.enabled = false;
+                                   freePlayer();
+                               });
             }
             else if (introText != null) introText.enabled = false;
 
@@ -340,23 +359,23 @@ public class GameManager : MonoBehaviour
             c.a = 0f;
             introText.color = c;
 
-            _introAnimating = true;
-            _introSeq?.Kill();
-            _introSeq = DOTween.Sequence()
+            _Animating = true;
+            _Seq?.Kill();
+            _Seq = DOTween.Sequence()
                 .Append(introText.DOFade(1f, introFadeIn).SetUpdate(true))
-                .OnComplete(() => _introAnimating = false);
+                .OnComplete(() => _Animating = false);
         }
         else
         {
             // If text is visible -> fade it OUT and go to next line
-            _introAnimating = true;
-            _introSeq?.Kill();
-            _introSeq = DOTween.Sequence()
+            _Animating = true;
+            _Seq?.Kill();
+            _Seq = DOTween.Sequence()
                 .Append(introText.DOFade(0f, introFadeOut).SetUpdate(true))
                 .AppendInterval(introGap)
                 .OnComplete(() =>
                 {
-                    _introAnimating = false;
+                    _Animating = false;
                     currentIntroIndex++;
                 });
         }
@@ -368,5 +387,38 @@ public class GameManager : MonoBehaviour
         blackBackground.DOFade(toAlpha, duration).SetUpdate(true);
     }
 
+    public void OpenChest()
+    {
+        blackBackground.DOFade(1f, letterFade);
+        letterBack.DOFade(1f, letterFade);
+        letter.DOFade(1f, letterFade);
+    }
+
+    public void PopUp(InputAction.CallbackContext context/*, string hintText = "Hey, a hint!"*/)
+    {
+        if (context.phase == InputActionPhase.Started || context.phase == InputActionPhase.Performed)
+        {
+            hint.text = "Hey, a hint!";
+            hintBack.GetComponent<RectTransform>().DOAnchorPos(new Vector2(0, 100), 2f);
+        }
+    }
+
+    public void PopDown(InputAction.CallbackContext context)
+    {
+        if (context.phase == InputActionPhase.Started || context.phase == InputActionPhase.Performed)
+        {
+            hintBack.GetComponent<RectTransform>().DOAnchorPos(new Vector2(0, -100), 2f);
+        }
+    }
+
+    public void stopPlayer()
+    {
+        player.GetComponent<PlayerController>().enabled = false;
+    }
+
+    public void freePlayer()
+    {
+        player.GetComponent<PlayerController>().enabled = true;
+    }
 }
 

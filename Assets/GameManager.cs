@@ -1,5 +1,4 @@
 using DG.Tweening;
-using DG.Tweening.Core.Easing;
 using System;
 using System.Collections;
 using TMPro;
@@ -19,17 +18,19 @@ public enum PickupType
 public class GameManager : MonoBehaviour
 {
     private int current_room = 1;
+    private int current_difficulty = 1;
 
     public GameObject door_1;
     public GameObject door_2;
 
     public GameObject[] lights;
-    public float brightIntensity = 0.7f;
-    public float dimIntensity = 0.2f;
-    public float darkIntensity = 0.02f;
-    public float currentIntensity = 1f;
-    public float room2DimDuration = 60f;
-    public float room3DimDuration = 5f;
+    public float[] brightIntensity = {0.7f, 0.7f, 0.7f};
+    public float[] dimIntensity = {0.2f, 0.2f, 0.2f};
+    public float[] darkIntensity = { 0.02f, 0.02f, 0.02f };
+    private float currentIntensity = 1f;
+    public float[] room1DimDuration = {60f, 60f, 60f};
+    public float[] room2DimDuration = {60f, 60f, 60f};
+    public float[] room3DimDuration = {5f, 5f, 5f};
 
     public Texture2D[] brightDir, brightColor;
     public Texture2D[] dimDir, dimColor;
@@ -127,7 +128,9 @@ public class GameManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        setIntensity(brightIntensity);
+        current_difficulty = PlayerPrefs.GetInt("d", 1);
+
+        setIntensity(brightIntensity[current_difficulty]);
         flashlight.GetComponent<Light>().enabled = false;
         flashlightBody.SetActive(false);
         stopPlayer();
@@ -166,7 +169,14 @@ public class GameManager : MonoBehaviour
     
     public void startGame()
     {
-        StartCoroutine(LerpIntensity(brightIntensity, dimIntensity, room2DimDuration));
+        Debug.Log("Started!");
+        StartCoroutine(
+            LerpIntensity(
+                currentIntensity,
+                brightIntensity[current_difficulty],
+                room1DimDuration[current_difficulty]
+                )
+            );
     }
 
     public void objective_is_done(int obj_code)
@@ -211,7 +221,13 @@ public class GameManager : MonoBehaviour
                 {
                     door_1.transform.rotation = new Quaternion();
                     door_1.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezeAll;
-                    room2Coroutine = StartCoroutine(LerpIntensity(brightIntensity, dimIntensity, room2DimDuration));
+                    room2Coroutine = StartCoroutine(
+                        LerpIntensity(
+                            currentIntensity,
+                            dimIntensity[current_difficulty],
+                            room2DimDuration[current_difficulty]
+                            )
+                        );
                     current_room = 2;
                     break;
                 }
@@ -223,7 +239,11 @@ public class GameManager : MonoBehaviour
                     {
                         StopCoroutine(room2Coroutine);
                     }
-                    StartCoroutine(LerpIntensity(currentIntensity, darkIntensity, room3DimDuration));
+                    StartCoroutine(
+                        LerpIntensity(
+                            currentIntensity,
+                            darkIntensity[current_difficulty],
+                            room3DimDuration[current_difficulty]));
                     current_room = 3;
                     break;
                 }
@@ -292,7 +312,9 @@ public class GameManager : MonoBehaviour
 
     public void useBattery(InputAction.CallbackContext context)
     {
-        if (context.phase == InputActionPhase.Started || context.phase == InputActionPhase.Performed)
+        Debug.Log("Using Battry...");
+        Debug.Log(context.phase);
+        if (context.phase == InputActionPhase.Started)
         {
             Debug.Log("Battery Action!");
             if (hasFlashlight && current_room == 3)
@@ -319,10 +341,7 @@ public class GameManager : MonoBehaviour
     public void proceedIntro(InputAction.CallbackContext context)
     {
         if (
-            (
-            context.phase != InputActionPhase.Started &&
-            context.phase != InputActionPhase.Performed
-            )
+            context.phase != InputActionPhase.Started
             || isIntroDone) return;
 
         if (_Animating) return;
@@ -346,6 +365,7 @@ public class GameManager : MonoBehaviour
             }
             else if (introText != null) introText.enabled = false;
 
+            startGame();
             return;
         }
 
@@ -394,9 +414,9 @@ public class GameManager : MonoBehaviour
         letter.DOFade(1f, letterFade);
     }
 
-    public void PopUp(InputAction.CallbackContext context/*, string hintText = "Hey, a hint!"*/)
+    public void PopUp(InputAction.CallbackContext context)
     {
-        if (context.phase == InputActionPhase.Started || context.phase == InputActionPhase.Performed)
+        if (context.phase == InputActionPhase.Started)
         {
             hint.text = "Hey, a hint!";
             hintBack.GetComponent<RectTransform>().DOAnchorPos(new Vector2(0, 100), 2f);
@@ -405,7 +425,7 @@ public class GameManager : MonoBehaviour
 
     public void PopDown(InputAction.CallbackContext context)
     {
-        if (context.phase == InputActionPhase.Started || context.phase == InputActionPhase.Performed)
+        if (context.phase == InputActionPhase.Started)
         {
             hintBack.GetComponent<RectTransform>().DOAnchorPos(new Vector2(0, -100), 2f);
         }

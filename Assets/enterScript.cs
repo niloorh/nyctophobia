@@ -25,6 +25,7 @@ public class enterScript : MonoBehaviour
         if (other.tag == "Player")
         {
             gameManager.GetComponent<GameManager>().enteredRoom(room);
+            gameObject.SetActive(false);
         }
     }
 }

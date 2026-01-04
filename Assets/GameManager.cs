@@ -2,6 +2,7 @@ using DG.Tweening;
 using System;
 using System.Collections;
 using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
@@ -62,7 +63,7 @@ public class GameManager : MonoBehaviour
     public float bgFadeOutAtEnd = 1.0f;
 
     // Internal DOTween state
-    private Sequence _Seq;
+    private DG.Tweening.Sequence _Seq;
     private bool _Animating = false;
 
     // Inventory flags
@@ -78,6 +79,15 @@ public class GameManager : MonoBehaviour
 
     public GameObject hintBack;
     public TMP_Text hint;
+    public float hintTimeout = 5f;
+    public String[] room1Hints;
+    public float[] room1HintDelays;
+    public String[] room2Hints;
+    public float[] room2HintDelays;
+    public String[] room3Hints;
+    public float[] room3HintDelays;
+    private int currentHintIndex = 0;
+    private Coroutine hintCoroutine = null;
 
     public GameObject player;
 
@@ -177,6 +187,12 @@ public class GameManager : MonoBehaviour
                 room1DimDuration[current_difficulty]
                 )
             );
+        if (room1Hints.Length > 0)
+        {
+            DoWait(room1HintDelays[0], () => {
+                handleHints();
+            });
+        }
     }
 
     public void objective_is_done(int obj_code)
@@ -229,6 +245,18 @@ public class GameManager : MonoBehaviour
                             )
                         );
                     current_room = 2;
+                    if(hintCoroutine != null)
+                    {
+                        StopCoroutine( hintCoroutine );
+                        hintCoroutine = null;
+                    }
+                    currentHintIndex = 0;
+                    if (room2Hints.Length > 0)
+                    {
+                        DoWait(room2HintDelays[0], () => {
+                            handleHints();
+                        });
+                    }
                     break;
                 }
             case 3:
@@ -245,6 +273,18 @@ public class GameManager : MonoBehaviour
                             darkIntensity[current_difficulty],
                             room3DimDuration[current_difficulty]));
                     current_room = 3;
+                    if (hintCoroutine != null)
+                    {
+                        StopCoroutine(hintCoroutine);
+                        hintCoroutine = null;
+                    }
+                    currentHintIndex = 0;
+                    if (room3Hints.Length > 0)
+                    {
+                        DoWait(room3HintDelays[0], () => {
+                            handleHints();
+                        });
+                    }
                     break;
                 }
         }
@@ -418,7 +458,7 @@ public class GameManager : MonoBehaviour
     {
         if (context.phase == InputActionPhase.Started)
         {
-            hint.text = "Hey, a hint!";
+            //hint.text = "Hey, a hint!";
             hintBack.GetComponent<RectTransform>().DOAnchorPos(new Vector2(0, 100), 2f);
         }
     }
@@ -439,6 +479,92 @@ public class GameManager : MonoBehaviour
     public void freePlayer()
     {
         player.GetComponent<PlayerController>().enabled = true;
+    }
+
+    void DoWait(float duration, Action action)
+    {
+        hintCoroutine = StartCoroutine(WaitForThing(duration, action));
+    }
+
+    IEnumerator WaitForThing(float wait, Action action)
+    {
+        yield return new WaitForSeconds(wait);
+        action.Invoke();
+    }
+
+    void showHint(float delay)
+    {
+        hintBack.GetComponent<RectTransform>().DOAnchorPos(new Vector2(0, 100), 2f);
+        StartCoroutine(WaitForThing(hintTimeout, () =>
+        {
+            hintBack.GetComponent<RectTransform>().DOAnchorPos(new Vector2(0, -100), 2f);
+            if (delay > 0)
+            {
+                DoWait(delay, () =>
+                {
+                    handleHints();
+                });
+            }
+        }));
+    }
+
+    void handleHints()
+    {
+        hintCoroutine = null;
+        switch (current_room)
+        {
+            case 1:
+                {
+                    if (currentHintIndex < room1Hints.Length)
+                    {
+                        hint.text = room1Hints[currentHintIndex];
+                        currentHintIndex++;
+                        if (currentHintIndex < room1Hints.Length)
+                        {
+                            showHint(room1HintDelays[currentHintIndex]);
+                        }
+                        else
+                        {
+                            showHint(-1);
+                        }
+                    }
+                    break;
+                }
+            case 2:
+                {
+                    if (currentHintIndex < room2Hints.Length)
+                    {
+                        hint.text = room2Hints[currentHintIndex];
+                        currentHintIndex++;
+                        if (currentHintIndex < room2Hints.Length)
+                        {
+                            showHint(room2HintDelays[currentHintIndex]);
+                        }
+                        else
+                        {
+                            showHint(-1);
+                        }
+                    }
+                    break;
+                }
+            case 3:
+                {
+                    if (currentHintIndex < room3Hints.Length)
+                    {
+                        hint.text = room3Hints[currentHintIndex];
+                        currentHintIndex++;
+                        if (currentHintIndex < room3Hints.Length)
+                        {
+                            showHint(room3HintDelays[currentHintIndex]);
+                        }
+                        else
+                        {
+                            showHint(-1);
+                        }
+                    }
+                    break;
+                }
+        }
     }
 }
 

@@ -30801,6 +30801,25 @@ MonoBehaviour:
     type: 3}
   hintBack: {fileID: 1199132040}
   hint: {fileID: 152411127}
+  hintTimeout: 5
+  room1Hints:
+  - Hint room 1 number 1
+  - Hint room 1 number 2
+  room1HintDelays:
+  - 3
+  - 3
+  room2Hints:
+  - Hint room 2 number 1
+  - Hint room 2 number 2
+  room2HintDelays:
+  - 3
+  - 3
+  room3Hints:
+  - Hint room 3 number 1
+  - Hint room 3 number 2
+  room3HintDelays:
+  - 3
+  - 3
   player: {fileID: 2016547237}
 --- !u!4 &1307231586
 Transform:

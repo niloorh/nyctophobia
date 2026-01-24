@@ -13510,7 +13510,12 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: New Text
+  m_text: "My dear,\r\nYou came back \u2014 even though the dark still waited.\r\nAnd
+    you walked through it\u2026 gently, bravely.\r\nI watched you, even when I wasn\u2019t
+    beside you.\r\nBecause I\u2019m your mother \u2014 and I always knew you'd find
+    your way.\r\nNot by escaping fear,\r\nbut by learning to stand beside it.\r\nYou
+    didn\u2019t come here to defeat the dark.\r\nYou came to remember who you are.\r\nWhat
+    you were searching for was never in this house.\r\nIt was the light within."
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -30787,8 +30792,15 @@ MonoBehaviour:
   letterBack: {fileID: 1192830792}
   letterFade: 2
   IntroTexts:
-  - first part
-  - second part
+  - "You\u2019ve come back... The house stands quiet, untouched by time \u2014 yet
+    everything speaks. Dust in the light. Silence in the walls."
+  - "It\u2019s been years since you walked these rooms. Maybe you didn\u2019t expect
+    to return. Maybe not like this. But something calls you forward."
+  - "Step by step, through the glow and the growing dark, you search \u2014 not just
+    for what was left behind,"
+  - but for what might still live inside you. The warmth, the fear, the memory...
+    and perhaps, the light within.
+  - Let the quiet guide you. Let the shadows speak. Begin.
   introText: {fileID: 921110258}
   introFadeIn: 1
   introHold: 1.8
@@ -30803,20 +30815,24 @@ MonoBehaviour:
   hint: {fileID: 152411127}
   hintTimeout: 5
   room1Hints:
-  - Hint room 1 number 1
-  - Hint room 1 number 2
+  - "You left yourself a way through. You always did. It\u2019s still here \u2014
+    somewhere close."
+  - "You didn\u2019t trust the dark back then, so you kept a little light nearby.
+    Reach for it \u2014 like you used to."
   room1HintDelays:
   - 3
   - 3
   room2Hints:
-  - Hint room 2 number 1
-  - Hint room 2 number 2
+  - "Your room was always kept closed. Not locked out of fear \u2014 just memory.
+    The key is near. You\u2019ll know it when you touch it."
+  - "It didn\u2019t seem important back then. A small thing, forgotten in a drawer.
+    But now, it\u2019s the only thing that fits what was left behind."
   room2HintDelays:
   - 3
   - 3
   room3Hints:
-  - Hint room 3 number 1
-  - Hint room 3 number 2
+  - "You left before you were ready to read it. Now, maybe you are. It\u2019s here
+    \u2014 and it\u2019s been waiting just for you."
   room3HintDelays:
   - 3
   - 3

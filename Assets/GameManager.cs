@@ -354,8 +354,9 @@ public class GameManager : MonoBehaviour
     {
         Debug.Log("Using Battry...");
         Debug.Log(context.phase);
-        if (context.phase == InputActionPhase.Started)
-        {
+        //if (context.phase == InputActionPhase.Started)
+        if (context.phase == InputActionPhase.Performed)
+            {
             Debug.Log("Battery Action!");
             if (hasFlashlight && current_room == 3)
             {
@@ -380,8 +381,10 @@ public class GameManager : MonoBehaviour
 
     public void proceedIntro(InputAction.CallbackContext context)
     {
+        //Debug.Log("Proceed intro! " + context.phase);
         if (
-            context.phase != InputActionPhase.Started
+            //context.phase != InputActionPhase.Started
+            context.phase != InputActionPhase.Performed
             || isIntroDone) return;
 
         if (_Animating) return;

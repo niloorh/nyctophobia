@@ -91,6 +91,8 @@ public class GameManager : MonoBehaviour
 
     public GameObject player;
 
+    public GameObject MotionSicknessFilter;
+
     private void Awake()
     {
         if (VrIntroAction != null)
@@ -102,6 +104,11 @@ public class GameManager : MonoBehaviour
         {
             VrFlashlightAction.action.Enable();
             VrFlashlightAction.action.performed += useBattery;
+        }
+
+        if (MotionSicknessFilter != null)
+        {
+            MotionSicknessFilter.SetActive(PlayerPrefs.GetInt("m") == 1);
         }
     }
 

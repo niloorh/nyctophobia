@@ -1,5 +1,7 @@
+using DG.Tweening;
 using TMPro;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 
 public class MainMenuManager : MonoBehaviour
@@ -51,11 +53,11 @@ public class MainMenuManager : MonoBehaviour
 
         if (current == 1) // Now it's 0
         {
-            MotionText.text = "Motion Sickness helper\r\nOFF (Pointer)";
+            MotionText.text = "Motion Sickness helper\r\nOFF";
         }
         else // Now It's 1
         {
-            MotionText.text = "Motion Sickness helper\r\nON (Pointer)";
+            MotionText.text = "Motion Sickness helper\r\nON";
         }
     }
 }

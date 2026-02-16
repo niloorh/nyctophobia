@@ -50,6 +50,7 @@ public class GameManager : MonoBehaviour
     public Image letterBack;
     public float letterFade = 2f;
 
+    public bool skipIntro = false;
     public String[] IntroTexts;
     public TMP_Text introText;
     private int currentIntroIndex = 0;
@@ -79,6 +80,7 @@ public class GameManager : MonoBehaviour
 
     public GameObject hintBack;
     public TMP_Text hint;
+    public int hintDisplacement = 500;
     public float hintTimeout = 5f;
     public String[] room1Hints;
     public float[] room1HintDelays;
@@ -152,18 +154,43 @@ public class GameManager : MonoBehaviour
         flashlightBody.SetActive(false);
         stopPlayer();
 
-        if (introText != null)
+        if (skipIntro)
         {
-            var tc = introText.color;
-            tc.a = 0f;
-            introText.color = tc;
-        }
+            currentIntroIndex = IntroTexts.Length;
+            isIntroDone = true;
+            _Seq?.Kill();
+            if (introText != null) introText.DOFade(0f, 0.15f).SetUpdate(true);
 
-        if (blackBackground != null)
+            if (blackBackground != null)
+            {
+                blackBackground.DOFade(0f, bgFadeOutAtEnd)
+                               .SetUpdate(true)
+                               .OnComplete(() =>
+                               {
+                                   if (introText != null)
+                                       introText.enabled = false;
+                                   freePlayer();
+                               });
+            }
+            else if (introText != null) introText.enabled = false;
+
+            startGame();
+        }
+        else
         {
-            var bc = blackBackground.color;
-            bc.a = 1f;
-            blackBackground.color = bc;
+            if (introText != null)
+            {
+                var tc = introText.color;
+                tc.a = 0f;
+                introText.color = tc;
+            }
+
+            if (blackBackground != null)
+            {
+                var bc = blackBackground.color;
+                bc.a = 1f;
+                blackBackground.color = bc;
+            }
         }
     }
 
@@ -504,10 +531,10 @@ public class GameManager : MonoBehaviour
 
     void showHint(float delay)
     {
-        hintBack.GetComponent<RectTransform>().DOAnchorPos(new Vector2(0, 100), 2f);
+        hintBack.GetComponent<RectTransform>().DOAnchorPos(new Vector2(0, hintDisplacement), 2f);
         StartCoroutine(WaitForThing(hintTimeout, () =>
         {
-            hintBack.GetComponent<RectTransform>().DOAnchorPos(new Vector2(0, -100), 2f);
+            hintBack.GetComponent<RectTransform>().DOAnchorPos(new Vector2(0, -1 * hintDisplacement), 2f);
             if (delay > 0)
             {
                 DoWait(delay, () =>
